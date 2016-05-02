@@ -67,10 +67,6 @@ module.exports = function init(config, cb) {
         }, cb)
     }
 
-    function serialize(obj, cb) {
-        cb(null, [ obj.name, obj.value, JSON.stringify(obj.metadata) ])
-    }
-
     function deserialize(record, cb) {
         safeParse(record.metadata, function(err, metadata) {
             cb(err, { name: record.name, value: record.value, metadata: metadata })
@@ -105,7 +101,7 @@ module.exports = function init(config, cb) {
         async.waterfall([
             createBlockSequenceTable,
             checkIfBlockSequenceIncExists,
-            createBlockSequenceInc,
+            createBlockSequenceInc
         ], cb)
     }
 
