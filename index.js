@@ -35,7 +35,7 @@ module.exports = function init(config, cb) {
             if (err) return cb(err)
             pool.query(scripts['allocate'], [ sequence.name, size ], function(err, results) {
                 if (err) return cb(err)
-                deserialize(results[0][0], function(err, sequence) {
+                deserialize(results[1][0], function(err, sequence) {
                     if (err) return cb(err)
                     cb(null, _.chain({ next: sequence.value - size + 1, remaining: size })
                               .defaultsDeep(sequence)

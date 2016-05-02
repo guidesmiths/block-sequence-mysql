@@ -1,5 +1,3 @@
-# Do not use this module yet. It's still under development and handing out duplicate ids !!!
-
 # block-sequence-mysql
 A MySQL implementation of [block-sequence](https://www.npmjs.com/package/block-sequence).
 
