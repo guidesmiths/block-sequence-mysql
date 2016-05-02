@@ -33,9 +33,9 @@ module.exports = function init(config, cb) {
 
         ensure(options, function(err, sequence) {
             if (err) return cb(err)
-            pool.query(scripts['allocate'], [ sequence.name, size ], function(err, results) {
+            pool.query(scripts['allocate'], [ sequence.name, size, sequence.name, sequence.name ], function(err, results) {
                 if (err) return cb(err)
-                deserialize(results[1][0], function(err, sequence) {
+                deserialize(results[3][0], function(err, sequence) {
                     if (err) return cb(err)
                     cb(null, _.chain({ next: sequence.value - size + 1, remaining: size })
                               .defaultsDeep(sequence)
@@ -53,6 +53,16 @@ module.exports = function init(config, cb) {
         pool.query(scripts['remove'], [options.name.toLowerCase()], cb)
     }
 
+    function deserialize(record, cb) {
+        safeParse(record.metadata, function(err, metadata) {
+            cb(err, { name: record.name, value: record.value, metadata: metadata })
+        })
+    }
+
+    function close(cb) {
+        pool.end(cb)
+    }
+
     function loadScripts(cb) {
         fs.readdir(path.join(__dirname, 'sql'), function(err, files) {
             if (err) return cb(err)
@@ -67,47 +77,14 @@ module.exports = function init(config, cb) {
         }, cb)
     }
 
-    function deserialize(record, cb) {
-        safeParse(record.metadata, function(err, metadata) {
-            cb(err, { name: record.name, value: record.value, metadata: metadata })
-        })
-    }
-
-    function close(cb) {
-        pool.end(cb)
-    }
-
-    function ensureDatabaseObjects(cb) {
-
-        function createBlockSequenceTable(cb) {
-            debug('Creating gs_block_sequence table')
-            pool.query(scripts['create_gs_block_sequence_table'], [], cb)
-        }
-
-        function checkIfBlockSequenceIncExists(meh, meh2, cb) {
-            debug('Checking if gs_block_sequence_inc procedure exists')
-            pool.query(scripts['gs_block_sequence_inc_procedure_exists'], [], function(err, results) {
-                if (err) return cb(err)
-                cb(null, results.length === 1)
-            })
-        }
-
-        function createBlockSequenceInc(exists, cb) {
-            if (exists) return cb()
-            debug('Creating gs_block_sequence_inc procedure')
-            pool.query(scripts['create_gs_block_sequence_inc_procedure'], [], cb)
-        }
-
-        async.waterfall([
-            createBlockSequenceTable,
-            checkIfBlockSequenceIncExists,
-            createBlockSequenceInc
-        ], cb)
+    function createBlockSequenceTable(cb) {
+        debug('Creating gs_block_sequence table')
+        pool.query(scripts['create_gs_block_sequence_table'], [], cb)
     }
 
     async.series([
         loadScripts,
-        ensureDatabaseObjects
+        createBlockSequenceTable
     ], function(err) {
         cb(err, {
             remove: remove,

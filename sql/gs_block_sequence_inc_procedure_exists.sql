@@ -1,1 +1,0 @@
-(select 1 from mysql.proc where name = 'gs_block_sequence_inc');
