@@ -1,6 +1,6 @@
 {
   "name": "block-sequence-mysql",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A mysql implementation of block-sequence",
   "main": "index.js",
   "scripts": {
