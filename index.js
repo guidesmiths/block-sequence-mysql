@@ -5,13 +5,15 @@ var safeParse = require('safe-json-parse/callback')
 var async = require('async')
 var fs = require('fs')
 var path = require('path')
+var bigInt = require('big-integer')
 
 module.exports = function init(config, cb) {
 
+    if (Number.MAX_SAFE_INTEGER === undefined) Number.MAX_SAFE_INTEGER = 9007199254740991
     if (arguments.length === 1) return init({}, arguments[0])
 
     var scripts = {}
-    var pool = mysql.createPool(_.defaults({ multipleStatements: true }, config));
+    var pool = mysql.createPool(_.defaults({ multipleStatements: true, supportBigNumbers: true, bigNumberStrings: true }, config));
 
     function ensure(options, cb) {
 
@@ -55,7 +57,9 @@ module.exports = function init(config, cb) {
 
     function deserialize(record, cb) {
         safeParse(record.metadata, function(err, metadata) {
-            cb(err, { name: record.name, value: record.value, metadata: metadata })
+            var value = bigInt(record.value)
+            if (value.greater(Number.MAX_SAFE_INTEGER)) return cb(new Error('Sequence value exceeds Number.MAX_SAFE_INTEGER'))
+            cb(err, { name: record.name, value: value.toJSNumber(), metadata: metadata })
         })
     }
 
