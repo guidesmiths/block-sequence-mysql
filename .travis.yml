@@ -4,8 +4,8 @@ services:
   - docker
 
 before_install:
-  - sudo service postgresql stop
-  - docker run --detach --publish 5432:5432 --name postgres kiasaki/alpine-postgres
+  - sudo service mysql stop
+  - docker run --detach --publish 3306:3306 --env MYSQL_DATABASE=bs_test --env MYSQL_USER=guidesmiths --env MYSQL_PASSWORD=secret --name mysql wangxian/alpine-mysql
   - sleep 10
 
 language: node_js
