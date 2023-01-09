@@ -33,7 +33,7 @@
   "dependencies": {
     "async": "^2.1.4",
     "big-integer": "^1.6.17",
-    "debug": "^2.6.0",
+    "debug": "^3.1.0",
     "lodash": "^4.17.4",
     "mysql": "^2.13.0",
     "safe-json-parse": "^4.0.0"
